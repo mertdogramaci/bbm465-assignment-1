@@ -4,6 +4,8 @@ import enums.AlgorithmType;
 import enums.OperationType;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -13,6 +15,10 @@ public class CFB {
     private String outputFileName;
     private AlgorithmType algorithm;
     private String keyFileName;
+    private byte[] plainText;
+    private byte[] initializationVector;
+    private byte[] key;
+    private byte[] nonce;
 
     public CFB(
             OperationType operationType,
@@ -26,19 +32,50 @@ public class CFB {
         setOutputFileName(outputFileName);
         setAlgorithm(algorithm);
         setKeyFileName(keyFileName);
+
         try {
-            File inputFile = new File("files/" + this.inputFileName);
-            BufferedReader inputText = new BufferedReader(new FileReader(inputFile));
-            String inputString = inputText.readLine();
-            byte [] plainText = inputString.getBytes(StandardCharsets.UTF_8);
+            File keyFile = new File("files/" + this.keyFileName);
+            BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
+            String keyFileString = keyFileText.readLine();
 
-            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-            System.out.println();
+            setInitializationVector(keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8));
+            setKey(keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8));
+            setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
         } catch (IOException ioException) {
             System.out.println(ioException.getMessage());
         }
+
+        try {
+            File inputFile = new File("files/" + this.inputFileName);
+            BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
+            String inputFileString = inputFileText.readLine();
+
+            setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ioException) {
+            System.out.println(ioException.getMessage());
+        }
+
+        if (this.operationType == OperationType.ENCRYPTION) {
+            CFBEncryption();
+        } else {
+            CFBDecryption();
+        }
+
+    }
+
+    private void CFBEncryption() {
+        try {
+            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+            SecretKeySpec keySpec = new SecretKeySpec(this.key, "DES");
+            IvParameterSpec ivSpec = new IvParameterSpec(this.initializationVector);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            System.out.println(cipher);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private void CFBDecryption() {
 
     }
 
@@ -80,5 +117,37 @@ public class CFB {
 
     public void setKeyFileName(String keyFileName) {
         this.keyFileName = keyFileName;
+    }
+
+    public byte[] getPlainText() {
+        return plainText;
+    }
+
+    public void setPlainText(byte[] plainText) {
+        this.plainText = plainText;
+    }
+
+    public byte[] getInitializationVector() {
+        return initializationVector;
+    }
+
+    public void setInitializationVector(byte[] initializationVector) {
+        this.initializationVector = initializationVector;
+    }
+
+    public byte[] getKey() {
+        return key;
+    }
+
+    public void setKey(byte[] key) {
+        this.key = key;
+    }
+
+    public byte[] getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(byte[] nonce) {
+        this.nonce = nonce;
     }
 }

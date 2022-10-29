@@ -38,13 +38,12 @@ public class CFB extends Algorithm {
 
     @Override
     protected void encryption() {
-        byte[] cipherText;
+        byte[] cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
 
-        if (getPlainText().length % 8 == 0) {
-            cipherText = new byte[getPlainText().length];
-        } else {
-            cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
-        }
+        byte[] extendedPlainText = new byte[cipherText.length];
+        Arrays.fill(extendedPlainText, (byte) 0);
+
+        System.arraycopy(getPlainText(), 0, extendedPlainText, 0, getPlainText().length);
 
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -53,11 +52,11 @@ public class CFB extends Algorithm {
 
             byte[] ecbInput = getInitializationVector();
 
-            for (int i = 0; i < getPlainText().length / 8; i++) {
+            for (int i = 0; i < extendedPlainText.length / 8; i++) {
                 byte[] ecbOutput = cipher.doFinal(ecbInput);
 
                 byte[] plainTextPart = new byte[8];
-                System.arraycopy(getPlainText(), i * 8, plainTextPart, 0, 8);
+                System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
 
                 byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
                 System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
@@ -73,9 +72,6 @@ public class CFB extends Algorithm {
                 // TODO: will be deleted
                 setCipherText(cipherText);
             }
-
-            System.out.println(Arrays.toString(getCipherText()));
-            System.out.println(getCipherText().length);
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }
@@ -83,13 +79,12 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
-        byte[] plainText;
+        byte[] plainText = new byte[getCipherText().length + 8 - getCipherText().length % 8];
 
-        if (getCipherText().length % 8 == 0) {
-            plainText = new byte[getCipherText().length];
-        } else {
-            plainText = new byte[getCipherText().length + 8 - getCipherText().length % 8];
-        }
+        byte[] extendedCipherText = new byte[plainText.length];
+        Arrays.fill(extendedCipherText, (byte) 0);
+
+        System.arraycopy(getCipherText(), 0, extendedCipherText, 0, getCipherText().length);
 
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -98,11 +93,11 @@ public class CFB extends Algorithm {
 
             byte[] ecbInput = getInitializationVector();
 
-            for (int i = 0; i < getCipherText().length / 8; i++) {
+            for (int i = 0; i < extendedCipherText.length / 8; i++) {
                 byte[] ecbOutput = cipher.doFinal(ecbInput);
 
                 byte[] cipherTextPart = new byte[8];
-                System.arraycopy(getCipherText(), i * 8, cipherTextPart, 0, 8);
+                System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
 
                 byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
                 System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
@@ -118,9 +113,6 @@ public class CFB extends Algorithm {
                 // TODO: will be deleted
                 setPlainText(plainText);
             }
-
-            System.out.println(Arrays.toString(getPlainText()));
-            System.out.println(getPlainText().length);
 
             System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
         } catch (Exception exception) {

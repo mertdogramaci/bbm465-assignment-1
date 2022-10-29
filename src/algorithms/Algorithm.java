@@ -72,9 +72,9 @@ public abstract class Algorithm {
     protected void writeOutputFile(OperationType operationType) {
         try (FileOutputStream outputStream = new FileOutputStream("files/" + getOutputFileName())) {
             if (operationType == OperationType.ENCRYPTION) {
-                outputStream.write(getPlainText());
-            } else {
                 outputStream.write(getCipherText());
+            } else {
+                outputStream.write(getPlainText());
             }
         } catch (IOException ioException) {
             System.out.println(ioException.toString());

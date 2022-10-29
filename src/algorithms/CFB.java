@@ -5,7 +5,6 @@ import enums.OperationType;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CFB extends Algorithm {
@@ -29,7 +28,6 @@ public class CFB extends Algorithm {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
-            decryption();
         } else {
             decryption();
         }
@@ -38,7 +36,13 @@ public class CFB extends Algorithm {
 
     @Override
     protected void encryption() {
-        byte[] cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
+        byte[] cipherText;
+
+        if (getPlainText().length % 8 == 0){
+            cipherText = new byte[getPlainText().length];
+        } else {
+            cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
+        }
 
         byte[] extendedPlainText = new byte[cipherText.length];
         Arrays.fill(extendedPlainText, (byte) 0);
@@ -69,9 +73,10 @@ public class CFB extends Algorithm {
                 System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
                 setCipherText(resultCipherText);
             } else {
-                // TODO: will be deleted
                 setCipherText(cipherText);
             }
+
+            writeOutputFile(getOperationType());
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }
@@ -79,8 +84,13 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
-        byte[] plainText = new byte[getCipherText().length + 8 - getCipherText().length % 8];
+        byte[] plainText;
 
+        if (getPlainText().length % 8 == 0){
+            plainText = new byte[getPlainText().length];
+        } else {
+            plainText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
+        }
         byte[] extendedCipherText = new byte[plainText.length];
         Arrays.fill(extendedCipherText, (byte) 0);
 
@@ -110,11 +120,10 @@ public class CFB extends Algorithm {
                 System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
                 setPlainText(resultPlainText);
             } else {
-                // TODO: will be deleted
                 setPlainText(plainText);
             }
 
-            System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
+            writeOutputFile(getOperationType());
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }

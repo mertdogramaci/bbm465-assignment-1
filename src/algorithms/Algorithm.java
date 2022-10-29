@@ -3,6 +3,12 @@ package algorithms;
 import enums.AlgorithmType;
 import enums.OperationType;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 public abstract class Algorithm {
     private OperationType operationType;
     private String inputFileName;
@@ -14,13 +20,42 @@ public abstract class Algorithm {
     private byte[] key;
     private byte[] nonce;
 
-    protected void InitializeIV(byte[] fullIV) {
+    protected void readKeyFile(int blockSize) {
+        try {
+            File keyFile = new File("files/" + getKeyFileName());
+            BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
+            String keyFileString = keyFileText.readLine();
+
+            byte[] fullIV = keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8);
+            initializeIV(fullIV);
+
+            setKey(keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8));
+            setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ioException) {
+            System.out.println(ioException.getMessage());
+        }
+    }
+
+    protected void readInputFile() {
+        try {
+            File inputFile = new File("files/" + getInputFileName());
+            BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
+            String inputFileString = inputFileText.readLine();
+
+            setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ioException) {
+            System.out.println(ioException.getMessage());
+        }
+    }
+
+    protected void initializeIV(byte[] fullIV) {
         byte[] IV = new byte[16];
         System.arraycopy(fullIV, fullIV.length - 16, IV, 0, 16);
         setInitializationVector(IV);
     }
-    protected abstract void Encryption();
-    protected abstract void Decryption();
+
+    protected abstract void encryption();
+    protected abstract void decryption();
 
     public OperationType getOperationType() {
         return operationType;

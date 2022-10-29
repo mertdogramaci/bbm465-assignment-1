@@ -25,43 +25,23 @@ public class CFB extends Algorithm {
         setAlgorithm(algorithm);
         setKeyFileName(keyFileName);
 
-        try {
-            File keyFile = new File("files/" + getKeyFileName());
-            BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
-            String keyFileString = keyFileText.readLine();
+        readKeyFile(64);
 
-            byte[] fullIV = keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8);
-            InitializeIV(fullIV);
-
-            setKey(keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8));
-            setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
-        } catch (IOException ioException) {
-            System.out.println(ioException.getMessage());
-        }
-
-        try {
-            File inputFile = new File("files/" + getInputFileName());
-            BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
-            String inputFileString = inputFileText.readLine();
-
-            setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException ioException) {
-            System.out.println(ioException.getMessage());
-        }
+        readInputFile();
 
         System.out.println("key:\t" + Arrays.toString(getKey()) + "\t\t\t\t\t\tlength = " + getKey().length);
         System.out.println("IV:\t\t" + Arrays.toString(getInitializationVector()) + "\t\tlength = " + getInitializationVector().length);
 
         if (getOperationType() == OperationType.ENCRYPTION) {
-            Encryption();
+            encryption();
         } else {
-            Decryption();
+            decryption();
         }
 
     }
 
     @Override
-    protected void Encryption() {
+    protected void encryption() {
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
@@ -74,7 +54,7 @@ public class CFB extends Algorithm {
     }
 
     @Override
-    protected void Decryption() {
+    protected void decryption() {
 
     }
 

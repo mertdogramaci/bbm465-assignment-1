@@ -38,7 +38,7 @@ public class CFB extends Algorithm {
     protected void encryption() {
         byte[] cipherText;
 
-        if (getPlainText().length % 8 == 0){
+        if (getPlainText().length % 8 == 0) {
             cipherText = new byte[getPlainText().length];
         } else {
             cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
@@ -84,13 +84,16 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
+        System.out.println(Arrays.toString(getCipherText()));
+        System.out.println(getCipherText().length);
         byte[] plainText;
 
-        if (getPlainText().length % 8 == 0){
-            plainText = new byte[getPlainText().length];
+        if (getCipherText().length % 8 == 0) {
+            plainText = new byte[getCipherText().length];
         } else {
-            plainText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
+            plainText = new byte[getCipherText().length + 8 - getCipherText().length % 8];
         }
+
         byte[] extendedCipherText = new byte[plainText.length];
         Arrays.fill(extendedCipherText, (byte) 0);
 

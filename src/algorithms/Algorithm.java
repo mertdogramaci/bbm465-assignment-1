@@ -5,7 +5,6 @@ import enums.OperationType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public abstract class Algorithm {
     private OperationType operationType;
@@ -45,7 +44,11 @@ public abstract class Algorithm {
             BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
             String inputFileString = inputFileText.readLine();
 
-            setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
+            if (this.operationType == OperationType.ENCRYPTION) {
+                setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
+            } else {
+                setCipherText(inputFileString.getBytes(StandardCharsets.UTF_8));
+            }
         } catch (IOException ioException) {
             System.out.println(ioException.toString());
         }

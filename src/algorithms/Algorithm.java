@@ -3,11 +3,9 @@ package algorithms;
 import enums.AlgorithmType;
 import enums.OperationType;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public abstract class Algorithm {
     private OperationType operationType;
@@ -71,11 +69,13 @@ public abstract class Algorithm {
         return result;
     }
 
-    /*protected void writeToFile() {
-        try {
-            File outputFile = new File("files/" + getOutputFileName());
+    protected void writeOutputFile() {
+        try (FileOutputStream outputStream = new FileOutputStream("files/" + getOutputFileName())) {
+            outputStream.write(getPlainText());
+        } catch (IOException ioException) {
+            System.out.println(ioException.toString());
         }
-    }*/
+    }
 
     protected abstract void encryption();
     protected abstract void decryption();

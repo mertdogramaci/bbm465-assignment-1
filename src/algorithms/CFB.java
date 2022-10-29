@@ -6,6 +6,7 @@ import enums.OperationType;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class CFB extends Algorithm {
 
@@ -37,7 +38,13 @@ public class CFB extends Algorithm {
 
     @Override
     protected void encryption() {
-        byte[] cipherText = new byte[getPlainText().length];
+        byte[] cipherText;
+
+        if (getPlainText().length % 8 == 0) {
+             cipherText = new byte[getPlainText().length];
+        } else {
+            cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
+        }
 
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -72,6 +79,9 @@ public class CFB extends Algorithm {
 
             // TODO: will be deleted
             setCipherText(cipherText);
+
+            System.out.println(Arrays.toString(getCipherText()));
+            System.out.println(getCipherText().length);
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }
@@ -79,7 +89,13 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
-        byte[] plainText = new byte[getCipherText().length];
+        byte[] plainText;
+
+        if (getCipherText().length % 8 == 0) {
+            plainText = new byte[getCipherText().length];
+        } else {
+            plainText = new byte[getCipherText().length + 8 - getCipherText().length % 8];
+        }
 
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -109,8 +125,11 @@ public class CFB extends Algorithm {
                 System.arraycopy(getCipherText(), getCipherText().length / 8 * 8, cipherTextPart, 0, length);
 
                 byte[] cipherPart = byteXOR(cipherTextPart, ecbOutput);
-                System.arraycopy(cipherPart, 0, plainText, getPlainText().length / 8 * 8, length);
+                System.arraycopy(cipherPart, 0, plainText, getCipherText().length / 8 * 8, length);
             }
+
+            System.out.println(Arrays.toString(plainText));
+            System.out.println(plainText.length);
 
             System.out.println(new String(plainText, StandardCharsets.UTF_8));
         } catch (Exception exception) {

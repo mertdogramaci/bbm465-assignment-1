@@ -65,6 +65,4 @@ public class CFB extends Algorithm {
             System.out.println(exception.toString());
         }
     }
-
-
 }

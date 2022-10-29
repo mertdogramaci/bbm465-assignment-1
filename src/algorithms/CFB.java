@@ -8,17 +8,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
-public class CFB {
-    private OperationType operationType;
-    private String inputFileName;
-    private String outputFileName;
-    private AlgorithmType algorithm;
-    private String keyFileName;
-    private byte[] plainText;
-    private byte[] initializationVector;
-    private byte[] key;
-    private byte[] nonce;
+public class CFB extends Algorithm {
 
     public CFB(
             OperationType operationType,
@@ -34,11 +26,13 @@ public class CFB {
         setKeyFileName(keyFileName);
 
         try {
-            File keyFile = new File("files/" + this.keyFileName);
+            File keyFile = new File("files/" + getKeyFileName());
             BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
             String keyFileString = keyFileText.readLine();
 
-            setInitializationVector(keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8));
+            byte[] fullIV = keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8);
+            InitializeIV(fullIV);
+
             setKey(keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8));
             setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
         } catch (IOException ioException) {
@@ -46,7 +40,7 @@ public class CFB {
         }
 
         try {
-            File inputFile = new File("files/" + this.inputFileName);
+            File inputFile = new File("files/" + getInputFileName());
             BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
             String inputFileString = inputFileText.readLine();
 
@@ -55,19 +49,23 @@ public class CFB {
             System.out.println(ioException.getMessage());
         }
 
-        if (this.operationType == OperationType.ENCRYPTION) {
-            CFBEncryption();
+        System.out.println("key:\t" + Arrays.toString(getKey()) + "\t\t\t\t\t\tlength = " + getKey().length);
+        System.out.println("IV:\t\t" + Arrays.toString(getInitializationVector()) + "\t\tlength = " + getInitializationVector().length);
+
+        if (getOperationType() == OperationType.ENCRYPTION) {
+            Encryption();
         } else {
-            CFBDecryption();
+            Decryption();
         }
 
     }
 
-    private void CFBEncryption() {
+    @Override
+    protected void Encryption() {
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            SecretKeySpec keySpec = new SecretKeySpec(this.key, "DES");
-            IvParameterSpec ivSpec = new IvParameterSpec(this.initializationVector);
+            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
+            IvParameterSpec ivSpec = new IvParameterSpec(getInitializationVector());
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
             System.out.println(cipher);
         } catch (Exception exception) {
@@ -75,79 +73,10 @@ public class CFB {
         }
     }
 
-    private void CFBDecryption() {
+    @Override
+    protected void Decryption() {
 
     }
 
-    public OperationType getOperationType() {
-        return operationType;
-    }
 
-    public void setOperationType(OperationType operationType) {
-        this.operationType = operationType;
-    }
-
-    public String getInputFileName() {
-        return inputFileName;
-    }
-
-    public void setInputFileName(String inputFileName) {
-        this.inputFileName = inputFileName;
-    }
-
-    public String getOutputFileName() {
-        return outputFileName;
-    }
-
-    public void setOutputFileName(String outputFileName) {
-        this.outputFileName = outputFileName;
-    }
-
-    public AlgorithmType getAlgorithm() {
-        return algorithm;
-    }
-
-    public void setAlgorithm(AlgorithmType algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public String getKeyFileName() {
-        return keyFileName;
-    }
-
-    public void setKeyFileName(String keyFileName) {
-        this.keyFileName = keyFileName;
-    }
-
-    public byte[] getPlainText() {
-        return plainText;
-    }
-
-    public void setPlainText(byte[] plainText) {
-        this.plainText = plainText;
-    }
-
-    public byte[] getInitializationVector() {
-        return initializationVector;
-    }
-
-    public void setInitializationVector(byte[] initializationVector) {
-        this.initializationVector = initializationVector;
-    }
-
-    public byte[] getKey() {
-        return key;
-    }
-
-    public void setKey(byte[] key) {
-        this.key = key;
-    }
-
-    public byte[] getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(byte[] nonce) {
-        this.nonce = nonce;
-    }
 }

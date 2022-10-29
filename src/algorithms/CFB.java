@@ -37,15 +37,40 @@ public class CFB extends Algorithm {
 
     @Override
     protected void encryption() {
+        byte[] cipherText = new byte[getPlainText().length];
+
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-            byte[] deneme = cipher.doFinal(getInitializationVector());
 
-            byte[] cipherText = byteXOR(deneme, getPlainText());
+            byte[] ecbInput = getInitializationVector();
 
-            // TODO
+            for (int i = 0; i < getPlainText().length / 8; i++) {
+                byte[] ecbOutput = cipher.doFinal(ecbInput);
+
+                byte[] plainTextPart = new byte[8];
+                System.arraycopy(getPlainText(), i * 8, plainTextPart, 0, 8);
+
+                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
+                System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
+
+                ecbInput = cipherPart;
+            }
+
+            if (getPlainText().length % 8 != 0) {
+                byte[] ecbOutput = cipher.doFinal(ecbInput);
+
+                int length = getPlainText().length % 8;
+
+                byte[] plainTextPart = new byte[8];
+                System.arraycopy(getPlainText(), getPlainText().length / 8 * 8, plainTextPart, 0, length);
+
+                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
+                System.arraycopy(cipherPart, 0, cipherText, getPlainText().length / 8 * 8, length);
+            }
+
+            // TODO: will be deleted
             setCipherText(cipherText);
         } catch (Exception exception) {
             System.out.println(exception.toString());
@@ -54,13 +79,40 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
+        byte[] plainText = new byte[getCipherText().length];
+
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-            byte[] deneme = cipher.doFinal(getInitializationVector());
-            byte[] result = byteXOR(deneme, getCipherText());
-            System.out.println(new String(result, StandardCharsets.UTF_8));
+
+            byte[] ecbInput = getInitializationVector();
+
+            for (int i = 0; i < getCipherText().length / 8; i++) {
+                byte[] ecbOutput = cipher.doFinal(ecbInput);
+
+                byte[] cipherTextPart = new byte[8];
+                System.arraycopy(getCipherText(), i * 8, cipherTextPart, 0, 8);
+
+                byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
+                System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
+
+                ecbInput = cipherTextPart;
+            }
+
+            if (getCipherText().length % 8 != 0) {
+                byte[] ecbOutput = cipher.doFinal(ecbInput);
+
+                int length = getCipherText().length % 8;
+
+                byte[] cipherTextPart = new byte[8];
+                System.arraycopy(getCipherText(), getCipherText().length / 8 * 8, cipherTextPart, 0, length);
+
+                byte[] cipherPart = byteXOR(cipherTextPart, ecbOutput);
+                System.arraycopy(cipherPart, 0, plainText, getPlainText().length / 8 * 8, length);
+            }
+
+            System.out.println(new String(plainText, StandardCharsets.UTF_8));
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }

@@ -60,12 +60,12 @@ public abstract class Algorithm {
     }
 
     protected byte[] byteXOR(byte[] word1, byte[] word2) {
-        int blockSize = Math.max(word1.length, word2.length);
+        int blockSize = word1.length;
 
         byte[] result = new byte[blockSize];
 
         for (int i = 0; i < blockSize; i++) {
-            result[i] = (byte) (word1[i % word1.length] ^ word2[i % word2.length]);
+            result[i] = (byte) (word1[i] ^ word2[i]);
         }
 
         return result;

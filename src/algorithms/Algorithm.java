@@ -27,12 +27,16 @@ public abstract class Algorithm {
             String keyFileString = keyFileText.readLine();
 
             byte[] fullIV = keyFileString.split(" - ")[0].getBytes(StandardCharsets.UTF_8);
-            initializeIV(fullIV);
+            byte[] IV = getLSB(fullIV, 8);
+            setInitializationVector(IV);
 
-            setKey(keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8));
+            byte[] fullKey = keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8);
+            byte[] key = getLSB(fullKey, 8);
+            setKey(key);
+
             setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
         } catch (IOException ioException) {
-            System.out.println(ioException.getMessage());
+            System.out.println(ioException.toString());
         }
     }
 
@@ -44,14 +48,24 @@ public abstract class Algorithm {
 
             setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
         } catch (IOException ioException) {
-            System.out.println(ioException.getMessage());
+            System.out.println(ioException.toString());
         }
     }
 
-    protected void initializeIV(byte[] fullIV) {
-        byte[] IV = new byte[16];
-        System.arraycopy(fullIV, fullIV.length - 16, IV, 0, 16);
-        setInitializationVector(IV);
+    protected byte[] getLSB(byte[] fullWord, int blockSize) {
+        byte[] word = new byte[blockSize];
+        System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
+        return word;
+    }
+
+    protected byte[] byteXOR(byte[] word1, byte[] word2) {
+        byte[] result = new byte[word1.length];
+
+        for (int i = 0; i < word1.length; i++) {
+            result[i] = (byte) (word1[i] ^ word2[i]);
+        }
+
+        return result;
     }
 
     protected abstract void encryption();

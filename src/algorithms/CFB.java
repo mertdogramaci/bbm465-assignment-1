@@ -4,11 +4,8 @@ import enums.AlgorithmType;
 import enums.OperationType;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class CFB extends Algorithm {
 
@@ -29,9 +26,6 @@ public class CFB extends Algorithm {
 
         readInputFile();
 
-        System.out.println("key:\t" + Arrays.toString(getKey()) + "\t\t\t\t\t\tlength = " + getKey().length);
-        System.out.println("IV:\t\t" + Arrays.toString(getInitializationVector()) + "\t\tlength = " + getInitializationVector().length);
-
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
         } else {
@@ -45,17 +39,27 @@ public class CFB extends Algorithm {
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            IvParameterSpec ivSpec = new IvParameterSpec(getInitializationVector());
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-            System.out.println(cipher);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            byte[] deneme = cipher.doFinal(getInitializationVector());
+            byte[] result = byteXOR(deneme, getPlainText());
+            System.out.println(new String(result, StandardCharsets.UTF_8));
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
+            System.out.println(exception.toString());
         }
     }
 
     @Override
     protected void decryption() {
-
+        try {
+            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            byte[] deneme = cipher.doFinal(getInitializationVector());
+            byte[] result = byteXOR(deneme, getPlainText());
+            System.out.println(new String(result, StandardCharsets.UTF_8));
+        } catch (Exception exception) {
+            System.out.println(exception.toString());
+        }
     }
 
 

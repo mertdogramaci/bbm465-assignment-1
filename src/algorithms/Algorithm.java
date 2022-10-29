@@ -71,6 +71,12 @@ public abstract class Algorithm {
         return result;
     }
 
+    /*protected void writeToFile() {
+        try {
+            File outputFile = new File("files/" + getOutputFileName());
+        }
+    }*/
+
     protected abstract void encryption();
     protected abstract void decryption();
 

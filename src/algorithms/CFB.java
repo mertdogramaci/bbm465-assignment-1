@@ -41,7 +41,7 @@ public class CFB extends Algorithm {
         byte[] cipherText;
 
         if (getPlainText().length % 8 == 0) {
-             cipherText = new byte[getPlainText().length];
+            cipherText = new byte[getPlainText().length];
         } else {
             cipherText = new byte[getPlainText().length + 8 - getPlainText().length % 8];
         }
@@ -66,19 +66,13 @@ public class CFB extends Algorithm {
             }
 
             if (getPlainText().length % 8 != 0) {
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
-
-                int length = getPlainText().length % 8;
-
-                byte[] plainTextPart = new byte[8];
-                System.arraycopy(getPlainText(), getPlainText().length / 8 * 8, plainTextPart, 0, length);
-
-                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
-                System.arraycopy(cipherPart, 0, cipherText, getPlainText().length / 8 * 8, length);
+                byte[] resultCipherText = new byte[getPlainText().length];
+                System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
+                setCipherText(resultCipherText);
+            } else {
+                // TODO: will be deleted
+                setCipherText(cipherText);
             }
-
-            // TODO: will be deleted
-            setCipherText(cipherText);
 
             System.out.println(Arrays.toString(getCipherText()));
             System.out.println(getCipherText().length);
@@ -117,21 +111,18 @@ public class CFB extends Algorithm {
             }
 
             if (getCipherText().length % 8 != 0) {
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
-
-                int length = getCipherText().length % 8;
-
-                byte[] cipherTextPart = new byte[8];
-                System.arraycopy(getCipherText(), getCipherText().length / 8 * 8, cipherTextPart, 0, length);
-
-                byte[] cipherPart = byteXOR(cipherTextPart, ecbOutput);
-                System.arraycopy(cipherPart, 0, plainText, getCipherText().length / 8 * 8, length);
+                byte[] resultPlainText = new byte[getCipherText().length];
+                System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
+                setPlainText(resultPlainText);
+            } else {
+                // TODO: will be deleted
+                setPlainText(plainText);
             }
 
-            System.out.println(Arrays.toString(plainText));
-            System.out.println(plainText.length);
+            System.out.println(Arrays.toString(getPlainText()));
+            System.out.println(getPlainText().length);
 
-            System.out.println(new String(plainText, StandardCharsets.UTF_8));
+            System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }

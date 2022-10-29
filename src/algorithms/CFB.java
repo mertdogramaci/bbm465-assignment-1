@@ -28,6 +28,7 @@ public class CFB extends Algorithm {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
+            decryption();
         } else {
             decryption();
         }
@@ -41,8 +42,11 @@ public class CFB extends Algorithm {
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             byte[] deneme = cipher.doFinal(getInitializationVector());
-            byte[] result = byteXOR(deneme, getPlainText());
-            System.out.println(new String(result, StandardCharsets.UTF_8));
+
+            byte[] cipherText = byteXOR(deneme, getPlainText());
+
+            // TODO
+            setCipherText(cipherText);
         } catch (Exception exception) {
             System.out.println(exception.toString());
         }
@@ -55,7 +59,7 @@ public class CFB extends Algorithm {
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             byte[] deneme = cipher.doFinal(getInitializationVector());
-            byte[] result = byteXOR(deneme, getPlainText());
+            byte[] result = byteXOR(deneme, getCipherText());
             System.out.println(new String(result, StandardCharsets.UTF_8));
         } catch (Exception exception) {
             System.out.println(exception.toString());

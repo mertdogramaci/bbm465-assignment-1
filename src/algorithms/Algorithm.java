@@ -19,6 +19,7 @@ public abstract class Algorithm {
     private byte[] initializationVector;
     private byte[] key;
     private byte[] nonce;
+    private byte[] cipherText;
 
     protected void readKeyFile(int blockSize) {
         try {
@@ -59,10 +60,12 @@ public abstract class Algorithm {
     }
 
     protected byte[] byteXOR(byte[] word1, byte[] word2) {
-        byte[] result = new byte[word1.length];
+        int blockSize = Math.max(word1.length, word2.length);
 
-        for (int i = 0; i < word1.length; i++) {
-            result[i] = (byte) (word1[i] ^ word2[i]);
+        byte[] result = new byte[blockSize];
+
+        for (int i = 0; i < blockSize; i++) {
+            result[i] = (byte) (word1[i % word1.length] ^ word2[i % word2.length]);
         }
 
         return result;
@@ -141,5 +144,13 @@ public abstract class Algorithm {
 
     public void setNonce(byte[] nonce) {
         this.nonce = nonce;
+    }
+
+    public byte[] getCipherText() {
+        return cipherText;
+    }
+
+    public void setCipherText(byte[] cipherText) {
+        this.cipherText = cipherText;
     }
 }

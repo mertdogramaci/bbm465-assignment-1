@@ -49,17 +49,17 @@ public abstract class Mode {
 
     protected void readInputFile() {
         try {
-            File inputFile = new File("files/" + getInputFileName());
+            File inputFile = new File(getInputFileName());
             BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
             String inputFileString = inputFileText.readLine();
-
+            //inputFileString.getBytes(StandardCharsets.UTF_8)
             if (this.operationType == OperationType.ENCRYPTION) {
-                setPlainText(inputFileString.getBytes(StandardCharsets.UTF_8));
+                setPlainText(Files.readAllBytes(Paths.get(getInputFileName())));
             } else {
-                setCipherText(inputFileString.getBytes(StandardCharsets.UTF_8));
+                setCipherText(Files.readAllBytes(Paths.get(getInputFileName())));
             }
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            System.out.println(ioException.toString());
         }
     }
 

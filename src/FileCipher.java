@@ -29,7 +29,7 @@ public class FileCipher {
         if (args[6].equals("DES")) {
             setAlgorithm(AlgorithmType.DES);
         } else if (args[6].equals("3DES")) {
-            setAlgorithm(AlgorithmType.THREEDES);
+            setAlgorithm(AlgorithmType.TRIPLEDES);
         } else {
             System.out.println("You have typed the algorithm argument wrongly! It should be 'DES' or '3DES'!");
             System.exit(0);

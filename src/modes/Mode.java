@@ -7,6 +7,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public abstract class Mode {
@@ -49,14 +51,14 @@ public abstract class Mode {
 
     protected void readInputFile() {
         try {
-            File inputFile = new File(getInputFileName());
+            File inputFile = new File("files/" + getInputFileName());
             BufferedReader inputFileText = new BufferedReader(new FileReader(inputFile));
             String inputFileString = inputFileText.readLine();
             //inputFileString.getBytes(StandardCharsets.UTF_8)
             if (this.operationType == OperationType.ENCRYPTION) {
-                setPlainText(Files.readAllBytes(Paths.get(getInputFileName())));
+                setPlainText(Files.readAllBytes(Paths.get("files/" + getInputFileName())));
             } else {
-                setCipherText(Files.readAllBytes(Paths.get(getInputFileName())));
+                setCipherText(Files.readAllBytes(Paths.get("files/" + getInputFileName())));
             }
         } catch (IOException ioException) {
             System.out.println(ioException.toString());

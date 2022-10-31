@@ -3,9 +3,6 @@ package modes;
 import enums.AlgorithmType;
 import enums.OperationType;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CTR extends Mode {
@@ -28,7 +25,6 @@ public class CTR extends Mode {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
-            decryption();
         } else {
             decryption();
         }
@@ -49,40 +45,34 @@ public class CTR extends Mode {
 
         System.arraycopy(getPlainText(), 0, extendedPlainText, 0, getPlainText().length);
 
-        try {
+        byte[] counter = new byte[4];
+        Arrays.fill(counter, (byte) 0);
 
-            byte[] counter = new byte[4];
-            Arrays.fill(counter, (byte) 0);
+        for (int i = 0; i < extendedPlainText.length / 8; i++) {
+            byte[] ecbInput = new byte[8];
+            System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
+            System.arraycopy(counter, 0, ecbInput, 4, 4);
 
-            for (int i = 0; i < extendedPlainText.length / 8; i++) {
-                byte[] ecbInput = new byte[8];
-                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
-                System.arraycopy(counter, 0, ecbInput, 4, 4);
+            byte[] ecbOutput = ECBPart(ecbInput);
 
-                byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] plainTextPart = new byte[8];
+            System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
 
-                byte[] plainTextPart = new byte[8];
-                System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
+            byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
+            System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
 
-                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
-                System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
-
-                counter = byteAddOne(counter);
-            }
-
-            if (getPlainText().length % 8 != 0) {
-                byte[] resultCipherText = new byte[getPlainText().length];
-                System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
-                setCipherText(resultCipherText);
-            } else {
-                setCipherText(cipherText);
-            }
-
-            //writeOutputFile(getOperationType());
-            System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            counter = byteAddOne(counter);
         }
+
+        if (getPlainText().length % 8 != 0) {
+            byte[] resultCipherText = new byte[getPlainText().length];
+            System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
+            setCipherText(resultCipherText);
+        } else {
+            setCipherText(cipherText);
+        }
+
+        writeOutputFile(getOperationType());
     }
 
     @Override
@@ -100,39 +90,33 @@ public class CTR extends Mode {
 
         System.arraycopy(getCipherText(), 0, extendedCipherText, 0, getCipherText().length);
 
-        try {
+        byte[] counter = new byte[4];
+        Arrays.fill(counter, (byte) 0);
 
-            byte[] counter = new byte[4];
-            Arrays.fill(counter, (byte) 0);
+        for (int i = 0; i < extendedCipherText.length / 8; i++) {
+            byte[] ecbInput = new byte[8];
+            System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
+            System.arraycopy(counter, 0, ecbInput, 4, 4);
 
-            for (int i = 0; i < extendedCipherText.length / 8; i++) {
-                byte[] ecbInput = new byte[8];
-                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
-                System.arraycopy(counter, 0, ecbInput, 4, 4);
+            byte[] ecbOutput = ECBPart(ecbInput);
 
-                byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] cipherTextPart = new byte[8];
+            System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
 
-                byte[] cipherTextPart = new byte[8];
-                System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
+            byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
+            System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
 
-                byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
-                System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
-
-                counter = byteAddOne(counter);
-            }
-
-            if (getCipherText().length % 8 != 0) {
-                byte[] resultPlainText = new byte[getCipherText().length];
-                System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
-                setPlainText(resultPlainText);
-            } else {
-                setPlainText(plainText);
-            }
-
-            //writeOutputFile(getOperationType());
-            System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            counter = byteAddOne(counter);
         }
+
+        if (getCipherText().length % 8 != 0) {
+            byte[] resultPlainText = new byte[getCipherText().length];
+            System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
+            setPlainText(resultPlainText);
+        } else {
+            setPlainText(plainText);
+        }
+
+        writeOutputFile(getOperationType());
     }
 }

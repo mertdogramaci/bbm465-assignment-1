@@ -17,8 +17,11 @@ public abstract class Mode {
     private byte[] plainText;
     private byte[] initializationVector;
     private byte[] key;
+    private byte[] fullKey;
     private byte[] nonce;
     private byte[] cipherText;
+
+    private static final byte[] ARBITRARY_KEY = {0, 1, 2, 3, 4, 5, 6, 7};
 
     protected void readKeyFile() {
         try {
@@ -30,7 +33,7 @@ public abstract class Mode {
             byte[] IV = getLSB(fullIV, 8);
             setInitializationVector(IV);
 
-            byte[] fullKey = keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8);
+            fullKey = keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8);    // TODO: what will happen if fullKey.length < 8
             byte[] key = getLSB(fullKey, 8);
             setKey(key);
 
@@ -62,6 +65,13 @@ public abstract class Mode {
     private byte[] getLSB(byte[] fullWord, int blockSize) {
         byte[] word = new byte[blockSize];
         System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
+        return word;
+    }
+
+    private byte[] getMSB(byte[] fullWord, int blockSize) {
+        byte[] word = new byte[blockSize];
+        System.arraycopy(fullWord, 0, word, 0, blockSize);
+
         return word;
     }
 
@@ -107,46 +117,68 @@ public abstract class Mode {
         byte[] ecbOutput = new byte[ecbInput.length];
 
         try {
-            if (getAlgorithm() == AlgorithmType.DES) {
+            if (getAlgorithmType() == AlgorithmType.DES) {
                 Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
                 SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
                 ecbOutput = cipher.doFinal(ecbInput);
             } else {
+                byte[] key1 = new byte[8];
+                byte[] key2 = new byte[8];
+
+                if (fullKey.length < 16) {
+                    int key1Size = fullKey.length / 2;
+                    int key2Size = fullKey.length / 2 + fullKey.length % 2;
+
+                    byte[] key1Part = getLSB(fullKey, key1Size);
+                    byte[] key2Part = getMSB(fullKey, key2Size);
+
+                    System.arraycopy(key1Part, 0, key1, 0, key1Size);
+                    System.arraycopy(ARBITRARY_KEY, 0, key1, key1Size, fullKey.length - key1Size);
+
+                    System.arraycopy(key2Part, 0, key2, 0, key2Size);
+                    System.arraycopy(ARBITRARY_KEY, 0, key2, key2Size, fullKey.length - key2Size);
+                } else {
+                    byte[] doubleKey = getLSB(fullKey, 16);
+
+                    key1 = getLSB(doubleKey, 8);
+                    key2 = getMSB(doubleKey, 8);
+                }
+
                 if (getOperationType() == OperationType.ENCRYPTION) {
                     Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec1 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec1 = new SecretKeySpec(key1, "DES");
                     cipher1.init(Cipher.ENCRYPT_MODE, keySpec1);
 
                     byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
 
                     Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec2 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec2 = new SecretKeySpec(key2, "DES");
                     cipher2.init(Cipher.DECRYPT_MODE, keySpec2);
 
                     byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
 
                     Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec3 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec3 = new SecretKeySpec(key1, "DES");
                     cipher3.init(Cipher.ENCRYPT_MODE, keySpec3);
 
                     ecbOutput = cipher3.doFinal(ecbOutput2);
                 } else {
                     Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec1 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec1 = new SecretKeySpec(key1, "DES");
                     cipher1.init(Cipher.DECRYPT_MODE, keySpec1);
 
                     byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
 
                     Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec2 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec2 = new SecretKeySpec(key2, "DES");
                     cipher2.init(Cipher.ENCRYPT_MODE, keySpec2);
 
                     byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
 
                     Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec3 = new SecretKeySpec(getKey(), "DES");
+                    SecretKeySpec keySpec3 = new SecretKeySpec(key1, "DES");
                     cipher3.init(Cipher.DECRYPT_MODE, keySpec3);
 
                     ecbOutput = cipher3.doFinal(ecbOutput2);
@@ -185,11 +217,11 @@ public abstract class Mode {
         this.outputFileName = outputFileName;
     }
 
-    public AlgorithmType getAlgorithm() {
+    public AlgorithmType getAlgorithmType() {
         return algorithmType;
     }
 
-    public void setAlgorithm(AlgorithmType algorithmType) {
+    public void setAlgorithmType(AlgorithmType algorithmType) {
         this.algorithmType = algorithmType;
     }
 
@@ -239,5 +271,13 @@ public abstract class Mode {
 
     public void setCipherText(byte[] cipherText) {
         this.cipherText = cipherText;
+    }
+
+    public byte[] getFullKey() {
+        return fullKey;
+    }
+
+    public void setFullKey(byte[] fullKey) {
+        this.fullKey = fullKey;
     }
 }

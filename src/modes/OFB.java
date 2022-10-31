@@ -14,13 +14,13 @@ public class OFB extends Mode {
             OperationType operationType,
             String inputFileName,
             String outputFileName,
-            AlgorithmType algorithm,
+            AlgorithmType algorithmType,
             String keyFileName
     ) {
         setOperationType(operationType);
         setInputFileName(inputFileName);
         setOutputFileName(outputFileName);
-        setAlgorithm(algorithm);
+        setAlgorithmType(algorithmType);
         setKeyFileName(keyFileName);
 
         readKeyFile();

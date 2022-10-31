@@ -1,4 +1,4 @@
-package algorithms;
+package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
@@ -8,7 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class OFB extends Algorithm {
+public class OFB extends Mode {
 
     public OFB(
             OperationType operationType,

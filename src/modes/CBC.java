@@ -1,4 +1,4 @@
-package algorithms;
+package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
@@ -8,8 +8,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class CTR extends Algorithm {
-    public CTR(
+public class CBC extends Mode {
+
+    public CBC(
             OperationType operationType,
             String inputFileName,
             String outputFileName,
@@ -28,14 +29,18 @@ public class CTR extends Algorithm {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
+            decryption();// silincek
         } else {
             decryption();
         }
+
     }
 
     @Override
-    public void encryption() {
+    protected void encryption() {
         byte[] cipherText;
+        System.out.println(Arrays.toString(getPlainText()));
+        System.out.println(getPlainText().length);
 
         if (getPlainText().length % 8 == 0) {
             cipherText = new byte[getPlainText().length];
@@ -53,41 +58,44 @@ public class CTR extends Algorithm {
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-            byte[] counter = new byte[4];
-            Arrays.fill(counter, (byte) 0);
+            byte[] ecbInput = getInitializationVector();
 
             for (int i = 0; i < extendedPlainText.length / 8; i++) {
-                byte[] ecbInput = new byte[8];
-                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
-                System.arraycopy(counter, 0, ecbInput, 4, 4);
-
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
-
                 byte[] plainTextPart = new byte[8];
                 System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
+                byte[] cipherPart = cipher.doFinal(byteXOR(ecbInput,plainTextPart));
 
-                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
                 System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
 
-                counter = byteAddOne(counter);
+                ecbInput = cipherPart;
             }
 
-            if (getPlainText().length % 8 != 0) {
-                byte[] resultCipherText = new byte[getPlainText().length];
-                System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
-                setCipherText(resultCipherText);
-            } else {
-                setCipherText(cipherText);
-            }
+//            if (getPlainText().length % 8 != 0) {
+//                byte[] resultCipherText = new byte[getPlainText().length];
+//                System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
+//                setCipherText(resultCipherText);
+//            } else {
+//                setCipherText(cipherText);
+//            }
+            setCipherText(cipherText);//sona eklenenleri silmeden direkt ciphertexte set etcez decryptte sorun oluyor yoksa 
+            System.out.println(Arrays.toString(getCipherText()));
+            System.out.println(getCipherText().length);
+            System.out.println(Arrays.toString(cipherText));
+            System.out.println(cipherText.length);
+            System.out.println(new String(cipherText, StandardCharsets.UTF_8));
+            System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
 
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println(exception.toString());
         }
     }
 
     @Override
-    public void decryption() {
+    protected void decryption() {
+        System.out.println(Arrays.toString(getCipherText()));
+        System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
+        System.out.println(getCipherText().length);
         byte[] plainText;
 
         if (getCipherText().length % 8 == 0) {
@@ -104,25 +112,19 @@ public class CTR extends Algorithm {
         try {
             Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            byte[] counter = new byte[4];
-            Arrays.fill(counter, (byte) 0);
+            byte[] ecbInput = getInitializationVector();
 
             for (int i = 0; i < extendedCipherText.length / 8; i++) {
-                byte[] ecbInput = new byte[8];
-                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
-                System.arraycopy(counter, 0, ecbInput, 4, 4);
-
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
-
                 byte[] cipherTextPart = new byte[8];
                 System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
+                byte[] ecbOutput = cipher.doFinal(cipherTextPart);
+                byte[] plainTextPart = byteXOR(ecbInput,ecbOutput);
 
-                byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
                 System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
 
-                counter = byteAddOne(counter);
+                ecbInput = cipherTextPart;
             }
 
             if (getCipherText().length % 8 != 0) {
@@ -132,10 +134,17 @@ public class CTR extends Algorithm {
             } else {
                 setPlainText(plainText);
             }
+            System.out.println(Arrays.toString(plainText));
+            System.out.println(plainText.length);
+            System.out.println(Arrays.toString(getPlainText()));
+            System.out.println(getPlainText().length);
+
+            System.out.println(new String(plainText, StandardCharsets.UTF_8));
+            System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
 
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println(exception.toString());
         }
     }
 }

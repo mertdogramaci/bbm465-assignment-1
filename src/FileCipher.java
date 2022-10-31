@@ -1,4 +1,4 @@
-import algorithms.*;
+import modes.*;
 import enums.*;
 
 public class FileCipher {

@@ -1,4 +1,4 @@
-package algorithms;
+package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
@@ -6,7 +6,7 @@ import enums.OperationType;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public abstract class Algorithm {
+public abstract class Mode {
     private OperationType operationType;
     private String inputFileName;
     private String outputFileName;

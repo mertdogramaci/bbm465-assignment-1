@@ -1,4 +1,4 @@
-package algorithms;
+package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
@@ -7,9 +7,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
-public class CFB extends Algorithm {
-
-    public CFB(
+public class CTR extends Mode {
+    public CTR(
             OperationType operationType,
             String inputFileName,
             String outputFileName,
@@ -23,6 +22,7 @@ public class CFB extends Algorithm {
         setKeyFileName(keyFileName);
 
         readKeyFile();
+
         readInputFile();
 
         if (getOperationType() == OperationType.ENCRYPTION) {
@@ -30,11 +30,10 @@ public class CFB extends Algorithm {
         } else {
             decryption();
         }
-
     }
 
     @Override
-    protected void encryption() {
+    public void encryption() {
         byte[] cipherText;
 
         if (getPlainText().length % 8 == 0) {
@@ -53,9 +52,14 @@ public class CFB extends Algorithm {
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-            byte[] ecbInput = getInitializationVector();
+            byte[] counter = new byte[4];
+            Arrays.fill(counter, (byte) 0);
 
             for (int i = 0; i < extendedPlainText.length / 8; i++) {
+                byte[] ecbInput = new byte[8];
+                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
+                System.arraycopy(counter, 0, ecbInput, 4, 4);
+
                 byte[] ecbOutput = cipher.doFinal(ecbInput);
 
                 byte[] plainTextPart = new byte[8];
@@ -64,7 +68,7 @@ public class CFB extends Algorithm {
                 byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
                 System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
 
-                ecbInput = cipherPart;
+                counter = byteAddOne(counter);
             }
 
             if (getPlainText().length % 8 != 0) {
@@ -82,7 +86,7 @@ public class CFB extends Algorithm {
     }
 
     @Override
-    protected void decryption() {
+    public void decryption() {
         byte[] plainText;
 
         if (getCipherText().length % 8 == 0) {
@@ -101,9 +105,14 @@ public class CFB extends Algorithm {
             SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-            byte[] ecbInput = getInitializationVector();
+            byte[] counter = new byte[4];
+            Arrays.fill(counter, (byte) 0);
 
             for (int i = 0; i < extendedCipherText.length / 8; i++) {
+                byte[] ecbInput = new byte[8];
+                System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
+                System.arraycopy(counter, 0, ecbInput, 4, 4);
+
                 byte[] ecbOutput = cipher.doFinal(ecbInput);
 
                 byte[] cipherTextPart = new byte[8];
@@ -112,7 +121,7 @@ public class CFB extends Algorithm {
                 byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
                 System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
 
-                ecbInput = cipherTextPart;
+                counter = byteAddOne(counter);
             }
 
             if (getCipherText().length % 8 != 0) {

@@ -28,7 +28,6 @@ public class CTR extends Algorithm {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
-            decryption();
         } else {
             decryption();
         }
@@ -71,7 +70,6 @@ public class CTR extends Algorithm {
                 System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
 
                 counter = byteAddOne(counter);
-                System.out.println(Arrays.toString(counter));
             }
 
             if (getPlainText().length % 8 != 0) {
@@ -82,7 +80,7 @@ public class CTR extends Algorithm {
                 setCipherText(cipherText);
             }
 
-            System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
+            writeOutputFile(getOperationType());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -135,9 +133,9 @@ public class CTR extends Algorithm {
                 setPlainText(plainText);
             }
 
-            System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
+            writeOutputFile(getOperationType());
         } catch (Exception exception) {
-            System.out.println(exception.toString());
+            exception.printStackTrace();
         }
     }
 }

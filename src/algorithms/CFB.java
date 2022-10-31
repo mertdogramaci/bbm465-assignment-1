@@ -83,8 +83,6 @@ public class CFB extends Algorithm {
 
     @Override
     protected void decryption() {
-        System.out.println(Arrays.toString(getCipherText()));
-        System.out.println(getCipherText().length);
         byte[] plainText;
 
         if (getCipherText().length % 8 == 0) {

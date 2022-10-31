@@ -7,6 +7,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public abstract class Mode {
     private OperationType operationType;
@@ -33,7 +34,7 @@ public abstract class Mode {
             byte[] IV = getLSB(fullIV, 8);
             setInitializationVector(IV);
 
-            fullKey = keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8);    // TODO: what will happen if fullKey.length < 8
+            fullKey = keyFileString.split(" - ")[1].getBytes(StandardCharsets.UTF_8);
             byte[] key = getLSB(fullKey, 8);
             setKey(key);
 
@@ -64,7 +65,13 @@ public abstract class Mode {
 
     private byte[] getLSB(byte[] fullWord, int blockSize) {
         byte[] word = new byte[blockSize];
-        System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
+        if (fullWord.length < blockSize) {
+            Arrays.fill(word, (byte) 0);
+            System.arraycopy(fullWord, 0, word, fullWord.length, fullWord.length);
+        } else {
+            System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
+        }
+
         return word;
     }
 

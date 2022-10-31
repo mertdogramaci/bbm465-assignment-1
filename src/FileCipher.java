@@ -53,13 +53,13 @@ public class FileCipher {
                     this.keyFileName
             );
         } else if (args[7].equals("OFB")) {
-            /*OFB ofb = new OFB(
+            OFB ofb = new OFB(
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
                     this.algorithm,
                     this.keyFileName
-            );*/
+            );
         } else if (args[7].equals("CTR")) {
             CTR ctr = new CTR(
                     this.operationType,

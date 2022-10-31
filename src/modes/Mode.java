@@ -118,8 +118,10 @@ public abstract class Mode {
     protected void writeOutputFile(OperationType operationType) {
         try (FileOutputStream outputStream = new FileOutputStream("files/" + getOutputFileName())) {
             if (operationType == OperationType.ENCRYPTION) {
+                System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
                 outputStream.write(getCipherText());
             } else {
+                System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
                 outputStream.write(getPlainText());
             }
         } catch (IOException ioException) {

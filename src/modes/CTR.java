@@ -47,10 +47,8 @@ public class CTR extends Mode {
 
         System.arraycopy(getPlainText(), 0, extendedPlainText, 0, getPlainText().length);
 
-        try {
-            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        /*try {
+            Cipher cipher = createCipher();
 
             byte[] counter = new byte[4];
             Arrays.fill(counter, (byte) 0);
@@ -82,7 +80,7 @@ public class CTR extends Mode {
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
             exception.printStackTrace();
-        }
+        }*/
     }
 
     @Override
@@ -100,10 +98,8 @@ public class CTR extends Mode {
 
         System.arraycopy(getCipherText(), 0, extendedCipherText, 0, getCipherText().length);
 
-        try {
-            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        /*try {
+            Cipher cipher = createCipher();
 
             byte[] counter = new byte[4];
             Arrays.fill(counter, (byte) 0);
@@ -135,6 +131,6 @@ public class CTR extends Mode {
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
             exception.printStackTrace();
-        }
+        }*/
     }
 }

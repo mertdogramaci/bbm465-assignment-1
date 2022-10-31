@@ -65,6 +65,7 @@ public abstract class Mode {
 
     private byte[] getLSB(byte[] fullWord, int blockSize) {
         byte[] word = new byte[blockSize];
+
         if (fullWord.length < blockSize) {
             Arrays.fill(word, (byte) 0);
             System.arraycopy(fullWord, 0, word, fullWord.length, fullWord.length);
@@ -77,7 +78,13 @@ public abstract class Mode {
 
     private byte[] getMSB(byte[] fullWord, int blockSize) {
         byte[] word = new byte[blockSize];
-        System.arraycopy(fullWord, 0, word, 0, blockSize);
+
+        if (fullWord.length < blockSize) {
+            Arrays.fill(word, (byte) 0);
+            System.arraycopy(fullWord, 0, word, 0, fullWord.length);
+        } else {
+            System.arraycopy(fullWord, 0, word, 0, blockSize);
+        }
 
         return word;
     }

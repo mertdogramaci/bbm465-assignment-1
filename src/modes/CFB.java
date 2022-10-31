@@ -3,8 +3,7 @@ package modes;
 import enums.AlgorithmType;
 import enums.OperationType;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CFB extends Mode {
@@ -27,6 +26,7 @@ public class CFB extends Mode {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
+            decryption();   // TODO: will be deleted
         } else {
             decryption();
         }
@@ -48,37 +48,30 @@ public class CFB extends Mode {
 
         System.arraycopy(getPlainText(), 0, extendedPlainText, 0, getPlainText().length);
 
-        try {
-            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        byte[] ecbInput = getInitializationVector();
 
-            byte[] ecbInput = getInitializationVector();
+        for (int i = 0; i < extendedPlainText.length / 8; i++) {
+            byte[] ecbOutput = ECBPart(ecbInput);
 
-            for (int i = 0; i < extendedPlainText.length / 8; i++) {
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
+            byte[] plainTextPart = new byte[8];
+            System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
 
-                byte[] plainTextPart = new byte[8];
-                System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
+            byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
+            System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
 
-                byte[] cipherPart = byteXOR(plainTextPart, ecbOutput);
-                System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
-
-                ecbInput = cipherPart;
-            }
-
-            if (getPlainText().length % 8 != 0) {
-                byte[] resultCipherText = new byte[getPlainText().length];
-                System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
-                setCipherText(resultCipherText);
-            } else {
-                setCipherText(cipherText);
-            }
-
-            writeOutputFile(getOperationType());
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            ecbInput = cipherPart;
         }
+
+        if (getPlainText().length % 8 != 0) {
+            byte[] resultCipherText = new byte[getPlainText().length];
+            System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
+            setCipherText(resultCipherText);
+        } else {
+            setCipherText(cipherText);
+        }
+
+        //writeOutputFile(getOperationType());
+        System.out.println(new String(getCipherText(), StandardCharsets.UTF_8));
     }
 
     @Override
@@ -96,36 +89,29 @@ public class CFB extends Mode {
 
         System.arraycopy(getCipherText(), 0, extendedCipherText, 0, getCipherText().length);
 
-        try {
-            Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        byte[] ecbInput = getInitializationVector();
 
-            byte[] ecbInput = getInitializationVector();
+        for (int i = 0; i < extendedCipherText.length / 8; i++) {
+            byte[] ecbOutput = ECBPart(ecbInput);
 
-            for (int i = 0; i < extendedCipherText.length / 8; i++) {
-                byte[] ecbOutput = cipher.doFinal(ecbInput);
+            byte[] cipherTextPart = new byte[8];
+            System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
 
-                byte[] cipherTextPart = new byte[8];
-                System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
+            byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
+            System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
 
-                byte[] plainTextPart = byteXOR(cipherTextPart, ecbOutput);
-                System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
-
-                ecbInput = cipherTextPart;
-            }
-
-            if (getCipherText().length % 8 != 0) {
-                byte[] resultPlainText = new byte[getCipherText().length];
-                System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
-                setPlainText(resultPlainText);
-            } else {
-                setPlainText(plainText);
-            }
-
-            writeOutputFile(getOperationType());
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            ecbInput = cipherTextPart;
         }
+
+        if (getCipherText().length % 8 != 0) {
+            byte[] resultPlainText = new byte[getCipherText().length];
+            System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
+            setPlainText(resultPlainText);
+        } else {
+            setPlainText(plainText);
+        }
+
+        //writeOutputFile(getOperationType());
+        System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
     }
 }

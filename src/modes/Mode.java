@@ -3,6 +3,8 @@ package modes;
 import enums.AlgorithmType;
 import enums.OperationType;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -10,7 +12,7 @@ public abstract class Mode {
     private OperationType operationType;
     private String inputFileName;
     private String outputFileName;
-    private AlgorithmType algorithm;
+    private AlgorithmType algorithmType;
     private String keyFileName;
     private byte[] plainText;
     private byte[] initializationVector;
@@ -101,6 +103,61 @@ public abstract class Mode {
         }
     }
 
+    protected byte[] ECBPart(byte[] ecbInput) {
+        byte[] ecbOutput = new byte[ecbInput.length];
+
+        try {
+            if (getAlgorithm() == AlgorithmType.DES) {
+                Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+                SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
+                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+                ecbOutput = cipher.doFinal(ecbInput);
+            } else {
+                if (getOperationType() == OperationType.ENCRYPTION) {
+                    Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec1 = new SecretKeySpec(getKey(), "DES");
+                    cipher1.init(Cipher.ENCRYPT_MODE, keySpec1);
+
+                    byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
+
+                    Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec2 = new SecretKeySpec(getKey(), "DES");
+                    cipher2.init(Cipher.DECRYPT_MODE, keySpec2);
+
+                    byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
+
+                    Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec3 = new SecretKeySpec(getKey(), "DES");
+                    cipher3.init(Cipher.ENCRYPT_MODE, keySpec3);
+
+                    ecbOutput = cipher3.doFinal(ecbOutput2);
+                } else {
+                    Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec1 = new SecretKeySpec(getKey(), "DES");
+                    cipher1.init(Cipher.DECRYPT_MODE, keySpec1);
+
+                    byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
+
+                    Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec2 = new SecretKeySpec(getKey(), "DES");
+                    cipher2.init(Cipher.ENCRYPT_MODE, keySpec2);
+
+                    byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
+
+                    Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
+                    SecretKeySpec keySpec3 = new SecretKeySpec(getKey(), "DES");
+                    cipher3.init(Cipher.DECRYPT_MODE, keySpec3);
+
+                    ecbOutput = cipher3.doFinal(ecbOutput2);
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return ecbOutput;
+    }
+
     protected abstract void encryption();
     protected abstract void decryption();
 
@@ -129,11 +186,11 @@ public abstract class Mode {
     }
 
     public AlgorithmType getAlgorithm() {
-        return algorithm;
+        return algorithmType;
     }
 
-    public void setAlgorithm(AlgorithmType algorithm) {
-        this.algorithm = algorithm;
+    public void setAlgorithm(AlgorithmType algorithmType) {
+        this.algorithmType = algorithmType;
     }
 
     public String getKeyFileName() {

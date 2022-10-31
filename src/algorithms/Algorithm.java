@@ -18,7 +18,7 @@ public abstract class Algorithm {
     private byte[] nonce;
     private byte[] cipherText;
 
-    protected void readKeyFile(int blockSize) {
+    protected void readKeyFile() {
         try {
             File keyFile = new File("files/" + getKeyFileName());
             BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
@@ -32,9 +32,12 @@ public abstract class Algorithm {
             byte[] key = getLSB(fullKey, 8);
             setKey(key);
 
-            setNonce(keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8));
+            byte[] fullNonce = keyFileString.split(" - ")[2].getBytes(StandardCharsets.UTF_8);
+            byte[] nonce = getLSB(fullNonce, 4);
+            setNonce(nonce);
+
         } catch (IOException ioException) {
-            System.out.println(ioException.toString());
+            ioException.printStackTrace();
         }
     }
 
@@ -50,11 +53,11 @@ public abstract class Algorithm {
                 setCipherText(inputFileString.getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException ioException) {
-            System.out.println(ioException.toString());
+            ioException.printStackTrace();
         }
     }
 
-    protected byte[] getLSB(byte[] fullWord, int blockSize) {
+    private byte[] getLSB(byte[] fullWord, int blockSize) {
         byte[] word = new byte[blockSize];
         System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
         return word;
@@ -72,6 +75,20 @@ public abstract class Algorithm {
         return result;
     }
 
+    protected byte[] byteAddOne(byte[] number) {
+        for (int i = number.length - 1; i > -1; i--) {
+            if (number[i] == 1) {
+                number[i] = 0;
+            } else {
+                number[i] = 1;
+                return number;
+            }
+        }
+
+        number[0] = 0;
+        return number;
+    }
+
     protected void writeOutputFile(OperationType operationType) {
         try (FileOutputStream outputStream = new FileOutputStream("files/" + getOutputFileName())) {
             if (operationType == OperationType.ENCRYPTION) {
@@ -80,7 +97,7 @@ public abstract class Algorithm {
                 outputStream.write(getPlainText());
             }
         } catch (IOException ioException) {
-            System.out.println(ioException.toString());
+            ioException.printStackTrace();
         }
     }
 

@@ -22,8 +22,7 @@ public class CFB extends Algorithm {
         setAlgorithm(algorithm);
         setKeyFileName(keyFileName);
 
-        readKeyFile(64);
-
+        readKeyFile();
         readInputFile();
 
         if (getOperationType() == OperationType.ENCRYPTION) {
@@ -78,7 +77,7 @@ public class CFB extends Algorithm {
 
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
-            System.out.println(exception.toString());
+            exception.printStackTrace();
         }
     }
 
@@ -128,7 +127,7 @@ public class CFB extends Algorithm {
 
             writeOutputFile(getOperationType());
         } catch (Exception exception) {
-            System.out.println(exception.toString());
+            exception.printStackTrace();
         }
     }
 }

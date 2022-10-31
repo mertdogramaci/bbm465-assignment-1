@@ -23,7 +23,7 @@ public class CBC extends Algorithm {
         setAlgorithm(algorithm);
         setKeyFileName(keyFileName);
 
-        readKeyFile(64);
+        readKeyFile();
 
         readInputFile();
 

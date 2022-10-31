@@ -37,13 +37,13 @@ public class FileCipher {
 
         // if-else block for mode argument
         if (args[7].equals("CBC")) {
-            /*CBC cbc = new CBC(
+            CBC cbc = new CBC(
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
                     this.algorithm,
                     this.keyFileName
-            );*/
+            );
         } else if (args[7].equals("CFB")) {
             CFB cfb = new CFB(
                     this.operationType,
@@ -61,13 +61,13 @@ public class FileCipher {
                     this.keyFileName
             );*/
         } else if (args[7].equals("CTR")) {
-            /*CTR ctr = new CTR(
+            CTR ctr = new CTR(
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
                     this.algorithm,
                     this.keyFileName
-            );*/
+            );
         } else {
             System.out.println("You have typed the mode argument wrongly! It should be 'CBC', 'CFB', 'OFB', or 'CTR'!");
             System.exit(0);

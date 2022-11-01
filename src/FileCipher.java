@@ -2,9 +2,6 @@ import modes.*;
 import enums.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class FileCipher {
     private OperationType operationType;
@@ -20,7 +17,6 @@ public class FileCipher {
         } else if (args[1].split("")[1].equals("d")) {
             setOperationType(OperationType.DECRYPTION);
         } else {
-            // TODO: exception da throw edilebilir belki ?
             System.out.println("You have typed the encryption/decryption argument wrongly! " +
                     "It should be in '-e' or '-d' format!");
             System.exit(0);

@@ -83,15 +83,15 @@ public class FileCipher {
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
 
-        String logOutput = getInputFileName() + "\t" + getOutputFileName() + "\t";
+        String logOutput = getInputFileName() + "\s" + getOutputFileName() + "\s";
 
         if (getOperationType() == OperationType.ENCRYPTION) {
-            logOutput += "enc\t";
+            logOutput += "enc\s";
         } else {
-            logOutput += "dec\t";
+            logOutput += "dec\s";
         }
 
-        logOutput += getAlgorithmType() + "\t" + args[7] + "\t" + executionTime + "\n";
+        logOutput += getAlgorithmType() + "\s" + args[7] + "\s" + executionTime + "\n";
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("files/run.log", true));

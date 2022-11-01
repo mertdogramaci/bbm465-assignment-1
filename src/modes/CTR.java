@@ -2,8 +2,6 @@ package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
-
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CTR extends Mode {
@@ -54,7 +52,7 @@ public class CTR extends Mode {
         for (int i = 0; i < extendedPlainText.length / 8; i++) {
             System.arraycopy(counter, 0, ecbInput, 4, 4);
 
-            byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] ecbOutput = ECBPart(ecbInput,1,false);
 
             byte[] plainTextPart = new byte[8];
             System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
@@ -64,14 +62,7 @@ public class CTR extends Mode {
 
             counter = byteAddOne(counter);
         }
-
-        if (getPlainText().length % 8 != 0) {
-            byte[] resultCipherText = new byte[getPlainText().length];
-            System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
-            setCipherText(resultCipherText);
-        } else {
-            setCipherText(cipherText);
-        }
+        setCipherText(cipherText);
 
         writeOutputFile(getOperationType());
     }
@@ -99,7 +90,7 @@ public class CTR extends Mode {
             System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
             System.arraycopy(counter, 0, ecbInput, 4, 4);
 
-            byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] ecbOutput = ECBPart(ecbInput,1,false);
 
             byte[] cipherTextPart = new byte[8];
             System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
@@ -109,14 +100,7 @@ public class CTR extends Mode {
 
             counter = byteAddOne(counter);
         }
-
-        if (getCipherText().length % 8 != 0) {
-            byte[] resultPlainText = new byte[getCipherText().length];
-            System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
-            setPlainText(resultPlainText);
-        } else {
-            setPlainText(plainText);
-        }
+        setPlainText(deletePadding(plainText));
 
         writeOutputFile(getOperationType());
     }

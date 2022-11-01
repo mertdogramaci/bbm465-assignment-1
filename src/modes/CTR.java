@@ -3,6 +3,7 @@ package modes;
 import enums.AlgorithmType;
 import enums.OperationType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CTR extends Mode {
@@ -42,15 +43,15 @@ public class CTR extends Mode {
 
         byte[] extendedPlainText = new byte[cipherText.length];
         Arrays.fill(extendedPlainText, (byte) 0);
-
         System.arraycopy(getPlainText(), 0, extendedPlainText, 0, getPlainText().length);
 
         byte[] counter = new byte[4];
         Arrays.fill(counter, (byte) 0);
 
+        byte[] ecbInput = new byte[8];
+        System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
+
         for (int i = 0; i < extendedPlainText.length / 8; i++) {
-            byte[] ecbInput = new byte[8];
-            System.arraycopy(getNonce(), 0, ecbInput, 0, 4);
             System.arraycopy(counter, 0, ecbInput, 4, 4);
 
             byte[] ecbOutput = ECBPart(ecbInput);

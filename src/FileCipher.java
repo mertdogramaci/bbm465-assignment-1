@@ -1,9 +1,14 @@
 import modes.*;
 import enums.*;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class FileCipher {
     private OperationType operationType;
-    private AlgorithmType algorithm;
+    private AlgorithmType algorithmType;
     private String inputFileName;
     private String outputFileName;
     private String keyFileName;
@@ -27,13 +32,15 @@ public class FileCipher {
 
         // if-else block for algorithm argument
         if (args[6].equals("DES")) {
-            setAlgorithm(AlgorithmType.DES);
+            setAlgorithmType(AlgorithmType.DES);
         } else if (args[6].equals("3DES")) {
-            setAlgorithm(AlgorithmType.TRIPLEDES);
+            setAlgorithmType(AlgorithmType.TRIPLEDES);
         } else {
             System.out.println("You have typed the algorithm argument wrongly! It should be 'DES' or '3DES'!");
             System.exit(0);
         }
+
+        long startTime = System.currentTimeMillis();
 
         // if-else block for mode argument
         if (args[7].equals("CBC")) {
@@ -41,7 +48,7 @@ public class FileCipher {
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
-                    this.algorithm,
+                    this.algorithmType,
                     this.keyFileName
             );
         } else if (args[7].equals("CFB")) {
@@ -49,7 +56,7 @@ public class FileCipher {
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
-                    this.algorithm,
+                    this.algorithmType,
                     this.keyFileName
             );
         } else if (args[7].equals("OFB")) {
@@ -57,7 +64,7 @@ public class FileCipher {
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
-                    this.algorithm,
+                    this.algorithmType,
                     this.keyFileName
             );
         } else if (args[7].equals("CTR")) {
@@ -65,13 +72,37 @@ public class FileCipher {
                     this.operationType,
                     this.inputFileName,
                     this.outputFileName,
-                    this.algorithm,
+                    this.algorithmType,
                     this.keyFileName
             );
         } else {
             System.out.println("You have typed the mode argument wrongly! It should be 'CBC', 'CFB', 'OFB', or 'CTR'!");
             System.exit(0);
         }
+
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+
+        String logOutput = getInputFileName() + "\t" + getOutputFileName() + "\t";
+
+        if (getOperationType() == OperationType.ENCRYPTION) {
+            logOutput += "enc\t";
+        } else {
+            logOutput += "dec\t";
+        }
+
+        logOutput += getAlgorithmType() + "\t" + args[7] + "\t" + executionTime + "\n";
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("files/run.log", true));
+            writer.write(logOutput);
+            writer.close();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+
+
     }
 
     public OperationType getOperationType() {
@@ -82,12 +113,12 @@ public class FileCipher {
         this.operationType = operationType;
     }
 
-    public AlgorithmType getAlgorithm() {
-        return algorithm;
+    public AlgorithmType getAlgorithmType() {
+        return algorithmType;
     }
 
-    public void setAlgorithm(AlgorithmType algorithm) {
-        this.algorithm = algorithm;
+    public void setAlgorithmType(AlgorithmType algorithmType) {
+        this.algorithmType = algorithmType;
     }
 
     public String getInputFileName() {

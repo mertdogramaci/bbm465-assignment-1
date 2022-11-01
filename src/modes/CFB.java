@@ -3,6 +3,7 @@ package modes;
 import enums.AlgorithmType;
 import enums.OperationType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CFB extends Mode {
@@ -25,6 +26,7 @@ public class CFB extends Mode {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
+            decryption();
         } else {
             decryption();
         }
@@ -68,7 +70,7 @@ public class CFB extends Mode {
             setCipherText(cipherText);
         }
 
-        writeOutputFile(getOperationType());
+        //writeOutputFile(getOperationType());
     }
 
     @Override
@@ -107,7 +109,7 @@ public class CFB extends Mode {
         } else {
             setPlainText(plainText);
         }
-
-        writeOutputFile(getOperationType());
+        System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
+        //writeOutputFile(getOperationType());
     }
 }

@@ -28,7 +28,7 @@ public abstract class Mode {
 
     protected void readKeyFile() {
         try {
-            File keyFile = new File("files/" + getKeyFileName());
+            File keyFile = new File(getKeyFileName());
             BufferedReader keyFileText = new BufferedReader(new FileReader(keyFile));
             String keyFileString = keyFileText.readLine();
 
@@ -52,9 +52,9 @@ public abstract class Mode {
     protected void readInputFile() {
         try {
             if (this.operationType == OperationType.ENCRYPTION) {
-                setPlainText(Files.readAllBytes(Paths.get("files/" + getInputFileName())));
+                setPlainText(Files.readAllBytes(Paths.get(getInputFileName())));
             } else {
-                setCipherText(Files.readAllBytes(Paths.get("files/" + getInputFileName())));
+                setCipherText(Files.readAllBytes(Paths.get(getInputFileName())));
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();
@@ -114,7 +114,7 @@ public abstract class Mode {
     }
 
     protected void writeOutputFile(OperationType operationType) {
-        try (FileOutputStream outputStream = new FileOutputStream("files/" + getOutputFileName())) {
+        try (FileOutputStream outputStream = new FileOutputStream(getOutputFileName())) {
             if (operationType == OperationType.ENCRYPTION) {
                 outputStream.write(getCipherText());
             } else {

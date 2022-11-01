@@ -90,7 +90,7 @@ public class FileCipher {
         logOutput += getAlgorithmType() + "\s" + args[7] + "\s" + executionTime + "\n";
 
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("files/run.log", true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("run.log", true));
             writer.write(logOutput);
             writer.close();
         } catch (IOException ioException) {

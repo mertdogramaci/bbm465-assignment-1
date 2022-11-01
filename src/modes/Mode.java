@@ -125,14 +125,14 @@ public abstract class Mode {
         }
     }
 
-    protected byte[] ECBPart(byte[] ecbInput) {
+    protected byte[] ECBPart(byte[] ecbInput,int opMode, boolean isReversed) {
         byte[] ecbOutput = new byte[ecbInput.length];
 
         try {
             if (getAlgorithmType() == AlgorithmType.DES) {
                 Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
                 SecretKeySpec keySpec = new SecretKeySpec(getKey(), "DES");
-                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+                cipher.init(opMode, keySpec);
 
                 ecbOutput = cipher.doFinal(ecbInput);
             } else {
@@ -157,49 +157,47 @@ public abstract class Mode {
                     key1 = getLSB(doubleKey, 8);
                     key2 = getMSB(doubleKey, 8);
                 }
+                Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
+                SecretKeySpec keySpec1 = new SecretKeySpec(key1, "DES");
+                cipher1.init(opMode, keySpec1);
 
-                if (getOperationType() == OperationType.ENCRYPTION) {
-                    Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec1 = new SecretKeySpec(key1, "DES");
-                    cipher1.init(Cipher.ENCRYPT_MODE, keySpec1);
+                byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
 
-                    byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
+                Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
+                SecretKeySpec keySpec2 = new SecretKeySpec(key2, "DES");
+                cipher2.init(getReverseOpMode(opMode,isReversed), keySpec2);
 
-                    Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec2 = new SecretKeySpec(key2, "DES");
-                    cipher2.init(Cipher.DECRYPT_MODE, keySpec2);
+                byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
 
-                    byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
+                Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
+                SecretKeySpec keySpec3 = new SecretKeySpec(key1, "DES");
+                cipher3.init(opMode, keySpec3);
 
-                    Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec3 = new SecretKeySpec(key1, "DES");
-                    cipher3.init(Cipher.ENCRYPT_MODE, keySpec3);
+                ecbOutput = cipher3.doFinal(ecbOutput2);
 
-                    ecbOutput = cipher3.doFinal(ecbOutput2);
-                } else {
-                    Cipher cipher1 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec1 = new SecretKeySpec(key1, "DES");
-                    cipher1.init(Cipher.DECRYPT_MODE, keySpec1);
-
-                    byte[] ecbOutput1 = cipher1.doFinal(ecbInput);
-
-                    Cipher cipher2 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec2 = new SecretKeySpec(key2, "DES");
-                    cipher2.init(Cipher.ENCRYPT_MODE, keySpec2);
-
-                    byte[] ecbOutput2 = cipher2.doFinal(ecbOutput1);
-
-                    Cipher cipher3 = Cipher.getInstance("DES/ECB/NoPadding");
-                    SecretKeySpec keySpec3 = new SecretKeySpec(key1, "DES");
-                    cipher3.init(Cipher.DECRYPT_MODE, keySpec3);
-
-                    ecbOutput = cipher3.doFinal(ecbOutput2);
-                }
             }
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         return ecbOutput;
+    }
+
+    protected int getReverseOpMode(int opMode, boolean isReversed){
+        if(isReversed){
+            if (opMode == 1) return 2;
+            else return 1;
+        }
+        return opMode;
+    }
+
+    protected byte[] deletePadding(byte[] decryptedArray){
+        int i = decryptedArray.length-1;
+        while(decryptedArray[i] == 0){
+            i--;
+        }
+        byte[] outputByte = new byte[i+1];
+        System.arraycopy(decryptedArray,0,outputByte,0,i+1);
+        return outputByte;
     }
 
     protected abstract void encryption();

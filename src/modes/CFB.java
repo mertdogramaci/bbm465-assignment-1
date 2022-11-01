@@ -2,8 +2,6 @@ package modes;
 
 import enums.AlgorithmType;
 import enums.OperationType;
-
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CFB extends Mode {
@@ -26,7 +24,6 @@ public class CFB extends Mode {
 
         if (getOperationType() == OperationType.ENCRYPTION) {
             encryption();
-            decryption();
         } else {
             decryption();
         }
@@ -51,7 +48,7 @@ public class CFB extends Mode {
         byte[] ecbInput = getInitializationVector();
 
         for (int i = 0; i < extendedPlainText.length / 8; i++) {
-            byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] ecbOutput = ECBPart(ecbInput,1,false);
 
             byte[] plainTextPart = new byte[8];
             System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
@@ -61,16 +58,9 @@ public class CFB extends Mode {
 
             ecbInput = cipherPart;
         }
+        setCipherText(cipherText);
 
-        if (getPlainText().length % 8 != 0) {
-            byte[] resultCipherText = new byte[getPlainText().length];
-            System.arraycopy(cipherText, 0, resultCipherText, 0, getPlainText().length);
-            setCipherText(resultCipherText);
-        } else {
-            setCipherText(cipherText);
-        }
-
-        //writeOutputFile(getOperationType());
+        writeOutputFile(getOperationType());
     }
 
     @Override
@@ -91,7 +81,7 @@ public class CFB extends Mode {
         byte[] ecbInput = getInitializationVector();
 
         for (int i = 0; i < extendedCipherText.length / 8; i++) {
-            byte[] ecbOutput = ECBPart(ecbInput);
+            byte[] ecbOutput = ECBPart(ecbInput,1,false);
 
             byte[] cipherTextPart = new byte[8];
             System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
@@ -101,15 +91,8 @@ public class CFB extends Mode {
 
             ecbInput = cipherTextPart;
         }
+        setPlainText(deletePadding(plainText));
 
-        if (getCipherText().length % 8 != 0) {
-            byte[] resultPlainText = new byte[getCipherText().length];
-            System.arraycopy(plainText, 0, resultPlainText, 0, getCipherText().length);
-            setPlainText(resultPlainText);
-        } else {
-            setPlainText(plainText);
-        }
-        System.out.println(new String(getPlainText(), StandardCharsets.UTF_8));
-        //writeOutputFile(getOperationType());
+        writeOutputFile(getOperationType());
     }
 }

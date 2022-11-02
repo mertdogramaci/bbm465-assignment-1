@@ -2,34 +2,38 @@ import modes.*;
 import enums.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class FileCipher {
+public class FirstLayer {
     private OperationType operationType;
     private AlgorithmType algorithmType;
     private String inputFileName;
     private String outputFileName;
     private String keyFileName;
 
-    public FileCipher(String[] args) {
+    public FirstLayer(String[] args) {
         // if-else block for operation type (means encryption or decryption) argument
-        if (args[1].split("")[1].equals("e")) {
+        if (args[0].split("")[1].equals("e")) {
             setOperationType(OperationType.ENCRYPTION);
-        } else if (args[1].split("")[1].equals("d")) {
+        } else if (args[0].split("")[1].equals("d")) {
             setOperationType(OperationType.DECRYPTION);
         } else {
+            // TODO: exception da throw edilebilir belki ?
             System.out.println("You have typed the encryption/decryption argument wrongly! " +
                     "It should be in '-e' or '-d' format!");
             System.exit(0);
         }
 
-        setInputFileName(args[3]);
-        setOutputFileName(args[5]);
-        setKeyFileName(args[8]);
+        setInputFileName(args[2]);
+        setOutputFileName(args[4]);
+        setKeyFileName(args[7]);
 
         // if-else block for algorithm argument
-        if (args[6].equals("DES")) {
+        if (args[5].equals("DES")) {
             setAlgorithmType(AlgorithmType.DES);
-        } else if (args[6].equals("3DES")) {
+        } else if (args[5].equals("3DES")) {
             setAlgorithmType(AlgorithmType.TRIPLEDES);
         } else {
             System.out.println("You have typed the algorithm argument wrongly! It should be 'DES' or '3DES'!");
@@ -39,7 +43,7 @@ public class FileCipher {
         long startTime = System.currentTimeMillis();
 
         // if-else block for mode argument
-        if (args[7].equals("CBC")) {
+        if (args[6].equals("CBC")) {
             CBC cbc = new CBC(
                     this.operationType,
                     this.inputFileName,
@@ -47,7 +51,7 @@ public class FileCipher {
                     this.algorithmType,
                     this.keyFileName
             );
-        } else if (args[7].equals("CFB")) {
+        } else if (args[6].equals("CFB")) {
             CFB cfb = new CFB(
                     this.operationType,
                     this.inputFileName,
@@ -55,7 +59,7 @@ public class FileCipher {
                     this.algorithmType,
                     this.keyFileName
             );
-        } else if (args[7].equals("OFB")) {
+        } else if (args[6].equals("OFB")) {
             OFB ofb = new OFB(
                     this.operationType,
                     this.inputFileName,
@@ -63,7 +67,7 @@ public class FileCipher {
                     this.algorithmType,
                     this.keyFileName
             );
-        } else if (args[7].equals("CTR")) {
+        } else if (args[6].equals("CTR")) {
             CTR ctr = new CTR(
                     this.operationType,
                     this.inputFileName,
@@ -87,7 +91,7 @@ public class FileCipher {
             logOutput += "dec\s";
         }
 
-        logOutput += getAlgorithmType() + "\s" + args[7] + "\s" + executionTime + "\n";
+        logOutput += getAlgorithmType() + "\s" + args[6] + "\s" + executionTime + "\n";
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("run.log", true));
@@ -96,8 +100,6 @@ public class FileCipher {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-
-
 
     }
 

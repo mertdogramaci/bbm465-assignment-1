@@ -66,7 +66,7 @@ public abstract class Mode {
 
         if (fullWord.length < blockSize) {
             Arrays.fill(word, (byte) 0);
-            System.arraycopy(fullWord, 0, word, fullWord.length, fullWord.length);
+            System.arraycopy(fullWord, 0, word, 0, fullWord.length);
         } else {
             System.arraycopy(fullWord, fullWord.length - blockSize, word, 0, blockSize);
         }

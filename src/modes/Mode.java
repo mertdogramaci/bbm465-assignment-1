@@ -192,6 +192,7 @@ public abstract class Mode {
 
     protected byte[] deletePadding(byte[] decryptedArray){
         int i = decryptedArray.length-1;
+        if(i == -1) return decryptedArray;
         while(decryptedArray[i] == 0){
             i--;
         }

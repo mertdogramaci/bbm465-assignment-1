@@ -57,7 +57,7 @@ public class OFB extends Mode {
             System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
             ecbInput = ecbOutput;
         }
-        setCipherText(cipherText);//sona eklenenleri silmeden direkt ciphertexte set etcez decryptte sorun oluyor yoksa
+        setCipherText(cipherText);
         writeOutputFile(getOperationType());
     }
 

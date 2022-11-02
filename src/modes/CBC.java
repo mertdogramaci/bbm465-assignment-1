@@ -51,11 +51,11 @@ public class CBC extends Mode {
         for (int i = 0; i < extendedPlainText.length / 8; i++) {
             byte[] plainTextPart = new byte[8];
             System.arraycopy(extendedPlainText, i * 8, plainTextPart, 0, 8);
-            byte[] cipherPart = ECBPart(byteXOR(ecbInput,plainTextPart),1,true);//cipher.doFinal(byteXOR(ecbInput,plainTextPart));
+            byte[] cipherPart = ECBPart(byteXOR(ecbInput,plainTextPart),1,true);
             System.arraycopy(cipherPart, 0, cipherText, i * 8, 8);
             ecbInput = cipherPart;
         }
-            setCipherText(cipherText);//sona eklenenleri silmeden direkt ciphertexte set etcez decryptte sorun oluyor yoksa
+            setCipherText(cipherText);
             writeOutputFile(getOperationType());
 
     }
@@ -81,7 +81,7 @@ public class CBC extends Mode {
         for (int i = 0; i < extendedCipherText.length / 8; i++) {
             byte[] cipherTextPart = new byte[8];
             System.arraycopy(extendedCipherText, i * 8, cipherTextPart, 0, 8);
-            byte[] ecbOutput = ECBPart(cipherTextPart,2,true);//cipher.doFinal(cipherTextPart); op mode 1 ama 2 olması lazım calissin diye yaptım
+            byte[] ecbOutput = ECBPart(cipherTextPart,2,true);
             byte[] plainTextPart = byteXOR(ecbInput,ecbOutput);
             System.arraycopy(plainTextPart, 0, plainText, i * 8, 8);
             ecbInput = cipherTextPart;
